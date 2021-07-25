@@ -4,7 +4,7 @@
     "meta": {
         "label": "Offline Translation",
         "category": "Natural Language Processing",
-        "description": "Translate text offline",
+        "description": "Translate text offline across 100 languages",
         "author": "Dataiku (Niklas MUENNIGHOFF, Mehdi HAMOUMI, Krishna VADAKATTU)",
         "icon": "icon-cloud",
         "licenseInfo": "Apache Software License",
