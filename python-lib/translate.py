@@ -275,5 +275,5 @@ class Translator:
                 ).cpu()
                 translated_texts.extend(self.tokenizer.batch_decode(gen, skip_special_tokens=True))
 
-        logging.info(f"Successfully translated {len(translated_texts)} examples.")
+        logging.info(f"Successfully translated {len(translated_texts)} text rows.")
         return translated_texts
