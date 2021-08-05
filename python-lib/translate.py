@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Module implementing an offline translation client"""
+"""Module implementing offline translation."""
 
 import logging
 from typing import Any, AnyStr
