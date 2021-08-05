@@ -244,7 +244,7 @@ class Translator:
         generations = []
 
         logging.info(
-            f"Starting translation of {len(texts)} examples with batch size of {batch_size}."
+            f"Starting translation of {len(texts)} text rows with batch size of {batch_size}."
         )
         with torch.no_grad():
             for i in range(0, len(texts), batch_size):
