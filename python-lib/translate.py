@@ -240,7 +240,6 @@ class Translator:
         Returns:
             translated_texts: Translated texts
         """
-        forced_bos_token_id = self.tokenizer.get_lang_id(tar_lang)
         translated_texts = []
 
         logging.info(
@@ -256,7 +255,7 @@ class Translator:
                 batch = self.tokenizer(batch, padding=True, truncation=True, return_tensors="pt")
                 batch = {k: v.to(self.device) for k, v in batch.items()}
                 gen = self.model.generate(
-                    **batch, forced_bos_token_id=forced_bos_token_id, **kwargs
+                    **batch, forced_bos_token_id=self.tokenizer.get_lang_id(tar_lang), **kwargs
                 ).cpu()
                 translated_texts.extend(self.tokenizer.batch_decode(gen, skip_special_tokens=True))
 
