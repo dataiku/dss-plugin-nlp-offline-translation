@@ -20,6 +20,11 @@ from translate import Translator
 # Recipe parameters
 text_column = get_recipe_config().get("text_column")
 source_language = get_recipe_config().get("source_language", "")
+# Handle Multilingual source language case
+source_language_col = None
+if source_language == "source_language_col":
+    source_language_col = get_recipe_config().get("source_language_col", None)
+    source_language = None
 target_language = get_recipe_config().get("target_language", "")
 batch_size = get_recipe_config().get("batch_size", 1)
 device = "gpu" if get_recipe_config().get("use_gpu", False) else "cpu"
@@ -33,20 +38,12 @@ output_dataset = dataiku.Dataset(get_output_names_for_role("output_dataset")[0])
 validate_column_input(text_column, [col["name"] for col in input_dataset.read_schema()])
 input_df = input_dataset.get_dataframe()
 
-# Handle Multilingual source language case
-if source_language == "src_language_column":
-    src_lang_column = get_recipe_config().get("src_language_column", "")
-    source_language_list = input_df[src_lang_column].values.tolist()
-    source_language = None
-else:
-    source_language_list = []
-
 translator = Translator(
     input_df=input_df,
     input_column=text_column,
     target_language=target_language,
     source_language=source_language,
-    source_language_list=source_language_list,
+    source_language_col=source_language_col,
     device=device,
 )
 

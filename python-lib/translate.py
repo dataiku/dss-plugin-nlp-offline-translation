@@ -5,6 +5,7 @@ import logging
 from typing import Any, AnyStr
 from typing import List
 
+import numpy as np
 import pandas as pd
 import torch
 from transformers import AutoTokenizer
@@ -127,7 +128,6 @@ LANGUAGE_CODE_LABELS = {
 def get_device(device: str = "CPU") -> torch.device:
     """
     Get torch device.
-
     Args:
         device: Specifies device to use.
     Raises:
@@ -148,17 +148,15 @@ def get_device(device: str = "CPU") -> torch.device:
 class Translator:
     """
     Handles translation of pandas dataframe columns to other languages.
-
     Args:
         input_df: DataFrame on which to operate on
         input_column: Column of the input_df to translate
         target_language: Language to translate to
         source_language: Language to translate from
-        source_languages: List of languages of text in input_column.
-            Used instead of source_language if specified
+        source_language_col: Column name of column with source language codes.
+            Used instead of source_language if specified.
         device: On which device to perform translation
         pretrained_model: Specifier for a huggingface pretrained translation model
-
     """
 
     def __init__(
@@ -167,29 +165,20 @@ class Translator:
         input_column: AnyStr,
         target_language: AnyStr,
         source_language: AnyStr = None,
-        source_language_list: List[AnyStr] = [],
+        source_language_col: AnyStr = None,
         device="CPU",
         pretrained_model="facebook/m2m100_418M",
     ) -> None:
 
-        if not source_language and not source_language_list:
+        if not source_language and not source_language_col:
             raise ValueError(
-                "Either a source language or a column with source languages must be specified."
+                "Either a source language or a source language column must be specified."
             )
-
-        if (source_language_list) and len(source_language_list) != len(input_df):
-            raise ValueError("Length of source languages must be the same as of the input column.")
-
-        for lang_code in source_language_list:
-            if not (lang_code in LANGUAGE_CODE_LABELS):
-                raise ValueError(
-                    f"Language code '{lang_code}' is not available. Make sure it is in ISO 639-1 form and available for the model https://huggingface.co/{pretrained_model}"
-                )
 
         self.input_df = input_df
         self.input_column = input_column
         self.source_language = source_language
-        self.source_language_list = source_language_list
+        self.source_language_col = source_language_col
         self.target_language = target_language
         self.target_language_label = LANGUAGE_CODE_LABELS.get(target_language, "")
 
@@ -212,18 +201,16 @@ class Translator:
         **kwargs,
     ) -> pd.DataFrame:
         """
-        Applies translation to dataframe column.
+        Applies translation to dataframe.
         """
-        if (len(set(self.source_language_list)) > 1) and (batch_size > 1):
-            raise ValueError("Cannot handle different source languages in batches bigger than 1.")
-
         output_df = self.input_df.copy()
 
         output_df[self.translated_text_column_name] = self._translate(
-            self.input_df[self.input_column].tolist(),
+            self.input_df,
+            self.input_column,
             self.target_language,
             self.source_language,
-            self.source_language_list,
+            self.source_language_col,
             batch_size,
             **kwargs,
         )
@@ -232,10 +219,11 @@ class Translator:
 
     def _translate(
         self,
-        texts: List[AnyStr],
+        input_df: pd.DataFrame,
+        input_col: AnyStr,
         tar_lang: AnyStr,
         src_lang: AnyStr = None,
-        src_lang_list: List[AnyStr] = [],
+        src_lang_col: AnyStr = None,
         batch_size: int = 1,
         **kwargs,
     ) -> List[str]:
@@ -243,30 +231,50 @@ class Translator:
         Greedily generates translations of texts from source to target language.
 
         Args:
-            texts: Texts to translate
+            input_df: Dataframe to process
+            input_col: Column name of texts to translate
             tar_lang: Language code of target language
             src_lang: Language code of source language
-            src_lang_list: List of language codes of source languages
-                Used instead of src_lang if specified.
+            src_lang_col: Column name of column with source language codes.
+                Used instead of source_language if specified.
             batch_size: Num texts to process at once
+
         Returns:
             translated_texts: Translated texts
         """
         if src_lang:
             self.tokenizer.src_lang = src_lang
 
-        translated_texts = []
-
         logging.info(
-            f"Starting translation of {len(texts)} text rows with batch size of {batch_size}."
+            f"Starting translation of {len(input_df[input_col])} text rows with batch size of {batch_size}."
         )
+
+        if src_lang_col and not (len(np.unique(input_df[src_lang_col])) == 1) and batch_size > 1:
+            logging.warn(
+                f"Using a source language column with a batch size bigger than 1 may lead to translation errors. "
+                + "Make sure to either have segments of source languages spaced in the same way as the batch size or "
+                + "use a batch size of 1."
+            )
+
+        translated_texts = []
+        success_count = 0
         with torch.no_grad():
-            for i in range(0, len(texts), batch_size):
+            for i in range(0, len(input_df[input_col]), batch_size):
                 # Set source language
-                if src_lang_list:
-                    self.tokenizer.src_lang = src_lang_list[i]
+                if src_lang_col:
+                    src_lang = input_df[src_lang_col][i]
+                    if not (src_lang in LANGUAGE_CODE_LABELS):
+                        logging.warn(
+                            f"Skipping row number {i}, as language code '{src_lang}' is not available. Make sure it is in ISO 639-1 form and available for the model https://huggingface.co/{pretrained_model}"
+                        )
+                        translated_texts.append(
+                            f"Language code '{src_lang}' is not available. Make sure it is in ISO 639-1 form and available for the model https://huggingface.co/{pretrained_model}"
+                        )
+                        continue
+                    self.tokenizer.src_lang = src_lang
+
                 # Subselect batch_size items
-                batch = texts[i : i + batch_size]
+                batch = input_df[input_col][i : i + batch_size].tolist()
                 # Truncate or pad to max sequence length of model
                 batch = self.tokenizer(batch, padding=True, truncation=True, return_tensors="pt")
                 batch = {k: v.to(self.device) for k, v in batch.items()}
@@ -274,6 +282,7 @@ class Translator:
                     **batch, forced_bos_token_id=self.tokenizer.get_lang_id(tar_lang), **kwargs
                 ).cpu()
                 translated_texts.extend(self.tokenizer.batch_decode(gen, skip_special_tokens=True))
+                success_count += 1
 
-        logging.info(f"Successfully translated {len(translated_texts)} text rows.")
+        logging.info(f"Successfully translated {success_count} text rows.")
         return translated_texts

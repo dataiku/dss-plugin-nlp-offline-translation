@@ -51,7 +51,7 @@
       "mandatory": true,
       "selectChoices": [
         {
-          "value": "src_language_column",
+          "value": "source_language_col",
           "label": "Multilingual"
         },
         {
@@ -449,7 +449,7 @@
       ]
     },
     {
-      "name": "src_language_column",
+      "name": "source_language_col",
       "label": "Source Language column",
       "type": "COLUMN",
       "description": "Column containing ISO 639-1 language codes",
@@ -457,7 +457,7 @@
       "allowedColumnTypes": [
         "string"
       ],
-      "visibilityCondition": "model.source_language == 'src_language_column'"
+      "visibilityCondition": "model.source_language == 'source_language_col'"
     },
     {
       "name": "target_language",
@@ -859,11 +859,6 @@
           "value": "zh"
         }
       ]
-    },
-    {
-      "name": "separator_configuration",
-      "label": "Advanced",
-      "type": "SEPARATOR"
     },
     {
       "name": "show_advanced",
