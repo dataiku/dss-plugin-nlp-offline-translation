@@ -238,10 +238,10 @@ class Translator:
             src_langs: List of language codes of source languages
             batch_size: Num texts to process at once
         Returns:
-            generations: Translated texts
+            translated_texts: Translated texts
         """
         forced_bos_token_id = self.tokenizer.get_lang_id(tar_lang)
-        generations = []
+        translated_texts = []
 
         logging.info(
             f"Starting translation of {len(texts)} text rows with batch size of {batch_size}."
@@ -258,7 +258,7 @@ class Translator:
                 gen = self.model.generate(
                     **batch, forced_bos_token_id=forced_bos_token_id, **kwargs
                 ).cpu()
-                generations.extend(self.tokenizer.batch_decode(gen, skip_special_tokens=True))
+                translated_texts.extend(self.tokenizer.batch_decode(gen, skip_special_tokens=True))
 
-        logging.info(f"Successfully translated {len(generations)} examples.")
-        return generations
+        logging.info(f"Successfully translated {len(translated_texts)} examples.")
+        return translated_texts
