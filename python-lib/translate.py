@@ -172,7 +172,7 @@ class Translator:
         pretrained_model="facebook/m2m100_418M",
     ) -> None:
 
-        if (not (source_language)) and (not (source_language_list)):
+        if not source_language and not source_language_list:
             raise ValueError(
                 "Either a source language or a column with source languages must be specified."
             )
