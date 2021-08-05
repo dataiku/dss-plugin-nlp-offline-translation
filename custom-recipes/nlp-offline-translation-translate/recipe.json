@@ -2,7 +2,7 @@
   "meta": {
     "label": "Offline Translation",
     "displayOrderRank": 1,
-    "description": "Translate text to another language (uses [M2M](https://ai.facebook.com/blog/introducing-many-to-many-multilingual-machine-translation/))",
+    "description": "Translate text to another language (using the [M2M_100](https://ai.facebook.com/blog/introducing-many-to-many-multilingual-machine-translation/) pretrained model)",
     "icon": "icon-cloud"
   },
   "kind": "PYTHON",
