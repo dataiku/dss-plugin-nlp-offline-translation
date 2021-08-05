@@ -2,7 +2,7 @@
 """Module implementing an offline translation client"""
 
 import logging
-from typing import AnyStr
+from typing import Any, AnyStr
 from typing import List
 
 import pandas as pd
@@ -135,14 +135,14 @@ def get_device(device: str = "CPU") -> torch.device:
     """
     if device == "GPU":
         if torch.cuda.is_available():
-            device = torch.device("cuda")
+            torch_device = torch.device("cuda")
         else:
             raise RuntimeError("GPU was selected, but no CUDA GPUs are available")
     else:
-        device = torch.device("cpu")
+        torch_device = torch.device("cpu")
 
     logging.info(f"Running on {device}")
-    return device
+    return torch_device
 
 
 class Translator:
@@ -153,7 +153,8 @@ class Translator:
         input_df: DataFrame on which to operate on
         input_column: Column of the input_df to translate
         target_language: Language to translate to
-        source_language: Language of text in input_column
+        source_languages: List of languages of text in input_column.
+            Must have the same length as the
         device: On which device to perform translation
         pretrained_model: Specifier for a huggingface pretrained translation model
 
@@ -164,14 +165,23 @@ class Translator:
         input_df: pd.DataFrame,
         input_column: AnyStr,
         target_language: AnyStr,
-        source_language: AnyStr,
+        source_languages: List[AnyStr],
         device="CPU",
         pretrained_model="facebook/m2m100_418M",
     ) -> None:
 
+        if len(source_languages) != len(input_df):
+            raise ValueError("Length of source languages must be the same as of the input column.")
+
+        for lang_code in source_languages:
+            if not (lang_code in LANGUAGE_CODE_LABELS):
+                raise ValueError(
+                    f"Language code '{lang_code}' is not available. Make sure it in ISO 639-1 form and available for the model https://huggingface.co/{pretrained_model}"
+                )
+
         self.input_df = input_df
         self.input_column = input_column
-        self.source_language = source_language
+        self.source_languages = source_languages
         self.target_language = target_language
         self.target_language_label = LANGUAGE_CODE_LABELS.get(target_language, "")
 
@@ -196,12 +206,15 @@ class Translator:
         """
         Applies translation to dataframe column.
         """
+        if (len(set(self.source_languages)) != 1) and (batch_size > 1):
+            raise ValueError("Cannot handle different source languages in batches bigger than 1.")
+
         output_df = self.input_df.copy()
 
         output_df[self.translated_text_column_name] = self._translate(
             self.input_df[self.input_column].tolist(),
             self.target_language,
-            self.source_language,
+            self.source_languages,
             batch_size,
             **kwargs,
         )
@@ -210,9 +223,9 @@ class Translator:
 
     def _translate(
         self,
-        texts: List[str],
+        texts: List[AnyStr],
         tar_lang: AnyStr,
-        src_lang: AnyStr,
+        src_langs: List[AnyStr],
         batch_size: int = 1,
         **kwargs,
     ) -> List[str]:
@@ -222,18 +235,21 @@ class Translator:
         Args:
             texts: Texts to translate
             tar_lang: Language code of target language
-            src_lang: Language code of source language
+            src_langs: List of language codes of source languages
             batch_size: Num texts to process at once
         Returns:
             generations: Translated texts
         """
-        self.tokenizer.src_lang = src_lang
         forced_bos_token_id = self.tokenizer.get_lang_id(tar_lang)
-
         generations = []
 
+        logging.info(
+            f"Starting translation of {len(texts)} examples with batch size of {batch_size}."
+        )
         with torch.no_grad():
             for i in range(0, len(texts), batch_size):
+                # Set source language
+                self.tokenizer.src_lang = src_langs[i]
                 # Subselect batch_size items
                 batch = texts[i : i + batch_size]
                 # Truncate or pad to max sequence length of model

@@ -2,7 +2,7 @@
   "meta": {
     "label": "Offline Translation",
     "displayOrderRank": 1,
-    "description": "Translate a text column to another offline using the [M2M Model from FacebookAI](https://ai.facebook.com/blog/introducing-many-to-many-multilingual-machine-translation/)",
+    "description": "Translate text to another language (uses [M2M](https://ai.facebook.com/blog/introducing-many-to-many-multilingual-machine-translation/))",
     "icon": "icon-cloud"
   },
   "kind": "PYTHON",
@@ -50,6 +50,10 @@
       "type": "SELECT",
       "mandatory": true,
       "selectChoices": [
+        {
+          "value": "src_language_column",
+          "label": "Multilingual"
+        },
         {
           "label": "Amharic [am]",
           "value": "am"
@@ -443,6 +447,17 @@
           "value": "zh"
         }
       ]
+    },
+    {
+      "name": "src_language_column",
+      "label": "Source Language column",
+      "type": "COLUMN",
+      "description": "Column containing ISO 639-1 language codes",
+      "columnRole": "input_dataset",
+      "allowedColumnTypes": [
+        "string"
+      ],
+      "visibilityCondition": "model.source_language == 'src_language_column'"
     },
     {
       "name": "target_language",
@@ -851,22 +866,20 @@
       "type": "SEPARATOR"
     },
     {
-      "name": "device",
-      "label": "Device",
-      "description": "Which device to run on",
-      "type": "SELECT",
-      "mandatory": true,
-      "selectChoices": [
-        {
-          "value": "CPU",
-          "label": "CPU"
-        },
-        {
-          "value": "GPU",
-          "label": "GPU"
-        }
-      ],
-      "defaultValue": "CPU"
+      "name": "show_advanced",
+      "label": "Show Advanced options",
+      "type": "BOOLEAN",
+      "defaultValue": false,
+      "mandatory": false
+    },
+    {
+      "name": "use_gpu",
+      "label": "Enable GPU",
+      "description": "Use CUDA GPU for acceleration (strongly encouraged for faster processing)",
+      "type": "BOOLEAN",
+      "defaultValue": false,
+      "mandatory": false,
+      "visibilityCondition": "model.show_advanced"
     },
     {
       "name": "batch_size",
@@ -875,7 +888,8 @@
       "type": "INT",
       "mandatory": true,
       "defaultValue": 1,
-      "minI": 1
+      "minI": 1,
+      "visibilityCondition": "model.show_advanced"
     }
   ],
   "resourceKeys": []

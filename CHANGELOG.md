@@ -1,5 +1,5 @@
 # Changelog
 
-## [Version 1.0.0](https://github.com/dataiku/dss-plugin-nlp-amazon-translation/releases/tag/v1.0.0) - Initial release - 2021-06
+## [Version 1.0.0](https://github.com/dataiku/dss-plugin-nlp-amazon-translation/releases/tag/v1.0.0) - Initial release - 2021-08
 
-- ✨ Integration with the [Amazon Translation API - Basic edition](https://aws.amazon.com/translate/)
+- ✨ Release of the plugin with many-to-many translation of 100 languages using Facebook's M2M model
