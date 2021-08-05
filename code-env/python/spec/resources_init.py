@@ -8,9 +8,6 @@ clear_all_env_vars()
 set_env_path("TORCH_HOME", "pytorch")
 set_env_path("HF_HOME", "huggingface")
 
-print("TORCH_HOME", os.environ["TORCH_HOME"])
-print("HF_HOME", os.environ["HF_HOME"])
-
 ### MODELS ###
 from transformers import AutoTokenizer
 from transformers import AutoModelForSeq2SeqLM
