@@ -246,7 +246,7 @@ class Translator:
             self.tokenizer.src_lang = src_lang
 
         logging.info(
-            f"Starting translation of {len(input_df[input_col])} text rows with batch size of {batch_size}."
+            f"Starting translation of {len(input_df)} text rows with batch size of {batch_size}."
         )
 
         if src_lang_col and not (len(np.unique(input_df[src_lang_col])) == 1) and batch_size > 1:
