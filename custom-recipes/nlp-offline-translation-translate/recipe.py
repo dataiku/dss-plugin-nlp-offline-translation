@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
 from typing import AnyStr
 from typing import Dict
 
@@ -11,7 +10,6 @@ from dataiku.customrecipe import get_output_names_for_role
 from dkulib.dku_io_utils import set_column_descriptions
 from plugin_io_utils import validate_column_input
 from translate import Translator
-
 
 # ==============================================================================
 # SETUP

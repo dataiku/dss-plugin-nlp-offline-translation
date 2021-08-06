@@ -13,7 +13,6 @@ from transformers import AutoModelForSeq2SeqLM
 
 from plugin_io_utils import generate_unique
 
-
 # ==============================================================================
 # CONSTANT DEFINITION
 # ==============================================================================
@@ -205,25 +204,42 @@ class Translator:
         """
         output_df = self.input_df.copy()
 
-        output_df[self.translated_text_column_name] = self._translate(
-            self.input_df,
-            self.input_column,
-            self.target_language,
-            self.source_language,
-            self.source_language_col,
-            batch_size,
-            **kwargs,
-        )
+        # Multilingual case - Translate each language group separately
+        if self.source_language_col:
+            output_df[self.translated_text_column_name] = self.input_df.groupby(
+                self.source_language_col
+            )[self.input_column].transform(
+                lambda x: self._translate_single_language_group(x, batch_size)
+            )
+        # Single source language case
+        else:
+            output_df[self.translated_text_column_name] = self._translate(
+                self.input_df[self.input_column],
+                self.target_language,
+                self.source_language,
+                batch_size,
+                **kwargs,
+            )
 
         return output_df
 
+    def _translate_single_language_group(self, series: pd.Series, batch_size):
+        """
+        Handles multilingual translation with the source language specified in separate column.
+        """
+        source_language = self.input_df[self.source_language_col][series.index].iloc[0]
+        return self._translate(
+            series,
+            self.target_language,
+            source_language,
+            batch_size,
+        )
+
     def _translate(
         self,
-        input_df: pd.DataFrame,
-        input_col: AnyStr,
+        input_series: pd.Series,
         tar_lang: AnyStr,
-        src_lang: AnyStr = None,
-        src_lang_col: AnyStr = None,
+        src_lang: AnyStr,
         batch_size: int = 1,
         **kwargs,
     ) -> List[str]:
@@ -231,50 +247,25 @@ class Translator:
         Greedily generates translations of texts from source to target language.
 
         Args:
-            input_df: Dataframe to process
-            input_col: Column name of texts to translate
+            input_series:  to process
             tar_lang: Language code of target language
             src_lang: Language code of source language
-            src_lang_col: Column name of column with source language codes.
-                Used instead of source_language if specified.
             batch_size: Num texts to process at once
-
         Returns:
             translated_texts: Translated texts
         """
-        if src_lang and src_lang != "source_language_col":
-            self.tokenizer.src_lang = src_lang
+        self.tokenizer.src_lang = src_lang
 
         logging.info(
-            f"Starting translation of {len(input_df)} text rows with batch size of {batch_size}."
+            f"Starting translation of {len(input_series)} text row(s) with batch size of {batch_size} and source language {src_lang}."
         )
-
-        if src_lang_col and not (len(np.unique(input_df[src_lang_col])) == 1) and batch_size > 1:
-            logging.warn(
-                f"Using a source language column with a batch size bigger than 1 may lead to translation errors. "
-                + "Make sure to either have segments of source languages spaced in the same way as the batch size or "
-                + "use a batch size of 1."
-            )
 
         translated_texts = []
         success_count = 0
         with torch.no_grad():
-            for i in range(0, len(input_df[input_col]), batch_size):
-                # Set source language
-                if src_lang_col:
-                    src_lang = input_df[src_lang_col][i]
-                    if not (src_lang in LANGUAGE_CODE_LABELS):
-                        logging.warn(
-                            f"Skipping row number {i}, as language code '{src_lang}' is not available. Make sure it is in ISO 639-1 form and available for the model https://huggingface.co/{pretrained_model}"
-                        )
-                        translated_texts.append(
-                            f"Language code '{src_lang}' is not available. Make sure it is in ISO 639-1 form and available for the model https://huggingface.co/{pretrained_model}"
-                        )
-                        continue
-                    self.tokenizer.src_lang = src_lang
-
+            for i in range(0, len(input_series), batch_size):
                 # Subselect batch_size items
-                batch = input_df[input_col][i : i + batch_size].tolist()
+                batch = input_series[i : i + batch_size].tolist()
                 # Truncate or pad to max sequence length of model
                 batch = self.tokenizer(batch, padding=True, truncation=True, return_tensors="pt")
                 batch = {k: v.to(self.device) for k, v in batch.items()}
@@ -284,5 +275,7 @@ class Translator:
                 translated_texts.extend(self.tokenizer.batch_decode(gen, skip_special_tokens=True))
                 success_count += 1
 
-        logging.info(f"Successfully translated {success_count} text rows.")
+        logging.info(
+            f"Successfully translated {success_count} text row(s) from {src_lang} to {tar_lang}."
+        )
         return translated_texts
