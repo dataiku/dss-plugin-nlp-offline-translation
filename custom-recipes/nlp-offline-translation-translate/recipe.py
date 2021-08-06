@@ -24,7 +24,6 @@ source_language = get_recipe_config().get("source_language", "")
 source_language_col = None
 if source_language == "source_language_col":
     source_language_col = get_recipe_config().get("source_language_col", None)
-    source_language = None
 target_language = get_recipe_config().get("target_language", "")
 batch_size = get_recipe_config().get("batch_size", 1)
 device = "gpu" if get_recipe_config().get("use_gpu", False) else "cpu"

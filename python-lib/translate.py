@@ -242,7 +242,7 @@ class Translator:
         Returns:
             translated_texts: Translated texts
         """
-        if src_lang:
+        if src_lang and src_lang != "source_language_col":
             self.tokenizer.src_lang = src_lang
 
         logging.info(
