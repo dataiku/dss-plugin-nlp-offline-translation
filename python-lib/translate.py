@@ -2,7 +2,7 @@
 """Module implementing offline translation."""
 
 import logging
-from typing import Any, AnyStr
+from typing import AnyStr
 from typing import List
 
 import numpy as np
@@ -127,6 +127,7 @@ LANGUAGE_CODE_LABELS = {
 def get_device(device: str = "CPU") -> torch.device:
     """
     Get torch device.
+
     Args:
         device: Specifies device to use.
     Raises:
@@ -147,6 +148,7 @@ def get_device(device: str = "CPU") -> torch.device:
 class Translator:
     """
     Handles translation of pandas dataframe columns to other languages.
+
     Args:
         input_df: DataFrame on which to operate on
         input_column: Column of the input_df to translate
@@ -241,16 +243,19 @@ class Translator:
         tar_lang: AnyStr,
         src_lang: AnyStr,
         batch_size: int = 1,
+        num_beams: int = 5,
         **kwargs,
     ) -> List[str]:
         """
-        Greedily generates translations of texts from source to target language.
+        Generates translations of texts from source to target language.
 
         Args:
             input_series:  to process
             tar_lang: Language code of target language
             src_lang: Language code of source language
             batch_size: Num texts to process at once
+            num_beams: Number of beams for beam search, 1 means no beam search,
+                the default of 5 is used by e.g. M2M100
         Returns:
             translated_texts: Translated texts
         """
@@ -270,7 +275,10 @@ class Translator:
                 batch = self.tokenizer(batch, padding=True, truncation=True, return_tensors="pt")
                 batch = {k: v.to(self.device) for k, v in batch.items()}
                 gen = self.model.generate(
-                    **batch, forced_bos_token_id=self.tokenizer.get_lang_id(tar_lang), **kwargs
+                    **batch,
+                    forced_bos_token_id=self.tokenizer.get_lang_id(tar_lang),
+                    num_beams=num_beams,
+                    **kwargs,
                 ).cpu()
                 translated_texts.extend(self.tokenizer.batch_decode(gen, skip_special_tokens=True))
                 success_count += 1

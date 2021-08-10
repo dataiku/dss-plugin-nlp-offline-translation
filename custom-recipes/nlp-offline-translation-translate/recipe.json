@@ -885,6 +885,16 @@
       "defaultValue": 1,
       "minI": 1,
       "visibilityCondition": "model.show_advanced"
+    },
+    {
+      "name": "num_beams",
+      "label": "Number of beams",
+      "description": "Beam search (augment for a bit better performance but worse speed & memory)",
+      "type": "INT",
+      "mandatory": true,
+      "defaultValue": 5,
+      "minI": 1,
+      "visibilityCondition": "model.show_advanced"
     }
   ],
   "resourceKeys": []
