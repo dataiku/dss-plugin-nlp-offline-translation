@@ -878,7 +878,7 @@
     },
     {
       "name": "batch_size",
-      "label": "Batch Size",
+      "label": "Batch size",
       "description": "Number of rows to process at once",
       "type": "INT",
       "mandatory": true,
@@ -888,12 +888,13 @@
     },
     {
       "name": "num_beams",
-      "label": "Number of beams",
-      "description": "Beam search (augment for a bit better performance but worse speed & memory)",
+      "label": "Beam search",
+      "description": "Recommended range: 1 (faster) - 10 (higher quality, more memory)",
       "type": "INT",
       "mandatory": true,
       "defaultValue": 5,
       "minI": 1,
+      "maxI": 10,
       "visibilityCondition": "model.show_advanced"
     }
   ],
