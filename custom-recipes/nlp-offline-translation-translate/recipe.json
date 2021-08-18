@@ -3,7 +3,7 @@
     "label": "Offline Translation",
     "displayOrderRank": 1,
     "description": "Translate text to another language (using the [M2M_100](https://ai.facebook.com/blog/introducing-many-to-many-multilingual-machine-translation/) pretrained model)",
-    "icon": "icon-dku-offline-translation icon-cloud"
+    "icon": "icon-dku-offline-translation"
   },
   "kind": "PYTHON",
   "selectableFromDataset": "input_dataset",
