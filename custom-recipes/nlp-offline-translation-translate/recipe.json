@@ -450,7 +450,7 @@
     },
     {
       "name": "source_language_col",
-      "label": "Source Language column",
+      "label": "  ↳ Source language column",
       "type": "COLUMN",
       "description": "Column containing ISO 639-1 language codes",
       "columnRole": "input_dataset",
