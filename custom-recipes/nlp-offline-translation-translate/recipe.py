@@ -23,8 +23,9 @@ source_language_col = None
 if source_language == "source_language_col":
     source_language_col = get_recipe_config().get("source_language_col", None)
 target_language = get_recipe_config().get("target_language", "")
-batch_size = get_recipe_config().get("batch_size", 1)
 device = "gpu" if get_recipe_config().get("use_gpu", False) else "cpu"
+split_sentences = get_recipe_config().get("split_sentences", True)
+batch_size = get_recipe_config().get("batch_size", 1)
 
 # ==============================================================================
 # DEFINITIONS
@@ -48,7 +49,7 @@ translator = Translator(
 # RUN
 # ==============================================================================
 
-output_df = translator.translate_df(batch_size=batch_size)
+output_df = translator.translate_df(split_sentences=split_sentences, batch_size=batch_size)
 
 output_dataset.write_with_schema(output_df)
 

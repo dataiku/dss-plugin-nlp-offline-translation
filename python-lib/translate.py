@@ -7,6 +7,7 @@ from typing import List
 
 import numpy as np
 import pandas as pd
+import pysbd
 import torch
 from transformers import AutoTokenizer
 from transformers import AutoModelForSeq2SeqLM
@@ -118,6 +119,33 @@ LANGUAGE_CODE_LABELS = {
     "zh": "Chinese",
 }
 
+# Map languages by their families to pysbd compatible languages
+SRC_TO_PYSBD = {
+    "am": "am",
+    "ar": "ar",
+    "bg": "bg",
+    "da": "da",
+    "de": "de",
+    "el": "el",
+    "en": "en",
+    "es": "es",
+    "fa": "fa",
+    "fr": "fr",
+    "hi": "hi",
+    "hy": "hy",
+    "it": "it",
+    "ja": "ja",
+    "kk": "kk",
+    "mr": "mr",
+    "my": "my",
+    "nl": "nl",
+    "pl": "pl",
+    "ru": "ru",
+    "sk": "sk",
+    "ur": "ur",
+    "zh": "zh",
+}
+
 
 # ==============================================================================
 # CLASS AND FUNCTION DEFINITION
@@ -198,6 +226,7 @@ class Translator:
 
     def translate_df(
         self,
+        split_sentences: bool = True,
         batch_size: int = 1,
         **kwargs,
     ) -> pd.DataFrame:
@@ -211,37 +240,40 @@ class Translator:
             output_df[self.translated_text_column_name] = self.input_df.groupby(
                 self.source_language_col
             )[self.input_column].transform(
-                lambda x: self._translate_single_language_group(x, batch_size)
+                lambda x: self._translate_single_language_group(x, split_sentences, batch_size)
             )
         # Single source language case
         else:
             output_df[self.translated_text_column_name] = self._translate(
                 self.input_df[self.input_column],
-                self.target_language,
-                self.source_language,
-                batch_size,
+                tar_lang=self.target_language,
+                src_lang=self.source_language,
+                split_sentences=split_sentences,
+                batch_size=batch_size,
                 **kwargs,
             )
 
         return output_df
 
-    def _translate_single_language_group(self, series: pd.Series, batch_size):
+    def _translate_single_language_group(self, series: pd.Series, split_sentences, batch_size):
         """
         Handles multilingual translation with the source language specified in separate column.
         """
         source_language = self.input_df[self.source_language_col][series.index].iloc[0]
         return self._translate(
             series,
-            self.target_language,
-            source_language,
-            batch_size,
+            tar_lang=self.target_language,
+            src_lang=source_language,
+            split_sentences=split_sentences,
+            batch_size=batch_size,
         )
 
     def _translate(
         self,
         input_series: pd.Series,
-        tar_lang: AnyStr,
-        src_lang: AnyStr,
+        tar_lang: str,
+        src_lang: str,
+        split_sentences: bool = True,
         batch_size: int = 1,
         num_beams: int = 5,
         **kwargs,
@@ -250,9 +282,10 @@ class Translator:
         Generates translations of texts from source to target language.
 
         Args:
-            input_series:  to process
+            input_series: Series with texts to process
             tar_lang: Language code of target language
             src_lang: Language code of source language
+            split_sentences: Whether the model should split sentences before translating
             batch_size: Num texts to process at once
             num_beams: Number of beams for beam search, 1 means no beam search,
                 the default of 5 is used by e.g. M2M100
@@ -260,6 +293,7 @@ class Translator:
             translated_texts: Translated texts
         """
         self.tokenizer.src_lang = src_lang
+        seg = pysbd.Segmenter(language=SRC_TO_PYSBD[src_lang], clean=False)
 
         logging.info(
             f"Starting translation of {len(input_series)} text row(s) with batch size of {batch_size} and source language {src_lang}."
@@ -271,6 +305,12 @@ class Translator:
             for i in range(0, len(input_series), batch_size):
                 # Subselect batch_size items
                 batch = input_series[i : i + batch_size].tolist()
+                # Turn into List[List[str]] with the smallest unit being one sentence
+                batch = [seg.segment(txt) for txt in batch]
+                # Remember ending indices, e.g. the lengths 1, 2, 1 >>> indices 1, 3, 5
+                batch_ix = np.cumsum([len(sub_batch) for sub_batch in batch]).tolist()
+                # Flatten
+                batch = [txt for sub_batch in batch for txt in sub_batch]
                 # Truncate or pad to max sequence length of model
                 batch = self.tokenizer(batch, padding=True, truncation=True, return_tensors="pt")
                 batch = {k: v.to(self.device) for k, v in batch.items()}
@@ -280,7 +320,11 @@ class Translator:
                     num_beams=num_beams,
                     **kwargs,
                 ).cpu()
-                translated_texts.extend(self.tokenizer.batch_decode(gen, skip_special_tokens=True))
+                # Decode back to strings
+                gen = self.tokenizer.batch_decode(gen, skip_special_tokens=True)
+                # Stitch back together by iterating through start & end indices, e.g. (0,1), (1,3)..
+                gen = ["".join(gen[ix_s:ix_e]) for ix_s, ix_e in zip([0] + batch_ix, batch_ix)]
+                translated_texts.extend(gen)
                 success_count += 1
 
         logging.info(

@@ -877,6 +877,15 @@
       "visibilityCondition": "model.show_advanced"
     },
     {
+      "name": "split_sentences",
+      "label": "Split Sentences",
+      "description": "Processes the input sentence by sentence by splitting them",
+      "type": "BOOLEAN",
+      "mandatory": true,
+      "defaultValue": true,
+      "visibilityCondition": "model.show_advanced"
+    },
+    {
       "name": "batch_size",
       "label": "Batch size",
       "description": "Number of rows to process at once",
