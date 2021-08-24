@@ -2,7 +2,6 @@
 """Module implementing offline translation."""
 
 import logging
-from typing import AnyStr
 from typing import List
 
 import numpy as np
@@ -146,6 +145,10 @@ SRC_TO_PYSBD = {
     "zh": "zh",
 }
 
+# Define 300 as the max length of input tokens for generation
+# 200 is the max output length for M2M as defined in its config available from the HF Model Hub
+# Empirically M2M is at its best when being inputted <300 tokens and generating <300 tokens
+MAX_INPUT_TOKENS = 300
 
 # ==============================================================================
 # CLASS AND FUNCTION DEFINITION
@@ -157,9 +160,13 @@ def get_device(device: str = "CPU") -> torch.device:
     Get torch device.
 
     Args:
-        device: Specifies device to use.
+        device: Specifies device to use
+
+    Returns:
+        device: Torch device if found
+
     Raises:
-        ValueError: If GPU was selected, but not available.
+        ValueError: If GPU was selected, but not available
     """
     if device == "GPU":
         if torch.cuda.is_available():
@@ -191,10 +198,10 @@ class Translator:
     def __init__(
         self,
         input_df: pd.DataFrame,
-        input_column: AnyStr,
-        target_language: AnyStr,
-        source_language: AnyStr = None,
-        source_language_col: AnyStr = None,
+        input_column: str,
+        target_language: str,
+        source_language: str = None,
+        source_language_col: str = None,
         device="CPU",
         pretrained_model="facebook/m2m100_418M",
     ) -> None:
@@ -293,7 +300,8 @@ class Translator:
             translated_texts: Translated texts
         """
         self.tokenizer.src_lang = src_lang
-        seg = pysbd.Segmenter(language=SRC_TO_PYSBD[src_lang], clean=False)
+        if split_sentences:
+            seg = pysbd.Segmenter(language=SRC_TO_PYSBD[src_lang], clean=False)
 
         logging.info(
             f"Starting translation of {len(input_series)} text row(s) with batch size of {batch_size} and source language {src_lang}."
@@ -305,17 +313,33 @@ class Translator:
             for i in range(0, len(input_series), batch_size):
                 # Subselect batch_size items
                 batch = input_series[i : i + batch_size].tolist()
-                # Turn into List[List[str]] with the smallest unit being one sentence
-                batch = [seg.segment(txt) for txt in batch]
-                # Remember ending indices, e.g. the lengths 1, 2, 1 >>> indices 1, 3, 5
-                batch_ix = np.cumsum([len(sub_batch) for sub_batch in batch]).tolist()
-                # Flatten
-                batch = [txt for sub_batch in batch for txt in sub_batch]
-                # Truncate or pad to max sequence length of model
-                batch = self.tokenizer(batch, padding=True, truncation=True, return_tensors="pt")
-                batch = {k: v.to(self.device) for k, v in batch.items()}
+                # Turn into List[List[str]] with each str being one sentence
+                if split_sentences:
+                    batch = [seg.segment(txt) for txt in batch]
+                else:
+                    batch = [[txt] for txt in batch]
+                # Prepare the model inputs
+                batch_tokens = {}
+                batch_ix = []
+                for sub_batch in batch:
+                    for txt in sub_batch:
+                        tokens = self.tokenizer.encode(txt, add_special_tokens=False)
+                        # Enfore a maximum length in case of incorrect splitting or too long sentences
+                        for i in range(0, len(tokens), MAX_INPUT_TOKENS):
+                            input_dict = self.tokenizer.prepare_for_model(
+                                tokens[i : i + MAX_INPUT_TOKENS], add_special_tokens=True
+                            )
+                            for key, value in input_dict.items():
+                                batch_tokens.setdefault(key, [])
+                                batch_tokens[key].append(value)
+                    # Store the new length with each new sub_batch to discern what batch each text belongs to
+                    batch_ix.append(len(batch_tokens[key]))
+                # No need for truncation, as all inputs are now trimmed to less than the models seq length
+                batch_tokens = self.tokenizer.pad(batch_tokens, padding=True, return_tensors="pt")
+                # Move to CPU/GPU
+                batch_tokens = {k: v.to(self.device) for k, v in batch_tokens.items()}
                 gen = self.model.generate(
-                    **batch,
+                    **batch_tokens,
                     forced_bos_token_id=self.tokenizer.get_lang_id(tar_lang),
                     num_beams=num_beams,
                     **kwargs,
