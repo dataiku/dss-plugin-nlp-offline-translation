@@ -324,7 +324,7 @@ class Translator:
                 for sub_batch in batch:
                     for txt in sub_batch:
                         tokens = self.tokenizer.encode(txt, add_special_tokens=False)
-                        # Enfore a maximum length in case of incorrect splitting or too long sentences
+                        # Enforce a maximum length in case of incorrect splitting or too long sentences
                         for i in range(0, len(tokens), MAX_INPUT_TOKENS):
                             input_dict = self.tokenizer.prepare_for_model(
                                 tokens[i : i + MAX_INPUT_TOKENS], add_special_tokens=True
