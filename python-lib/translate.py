@@ -321,8 +321,8 @@ class Translator:
                 # Prepare the model inputs
                 batch_tokens = {}
                 batch_ix = []
-                for sub_batch in batch:
-                    for txt in sub_batch:
+                for txt in batch:
+                    for sentence in txt:
                         # Convert string to list of integers according to tokenizer's vocabulary
                         tokens = self.tokenizer.encode(txt, add_special_tokens=False)
                         # Enforce a maximum length in case of incorrect splitting or too long sentences
