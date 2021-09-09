@@ -347,7 +347,7 @@ class Translator:
                 # Decode back to strings
                 gen = self.tokenizer.batch_decode(gen, skip_special_tokens=True)
                 # Stitch back together by iterating through start & end indices, e.g. (0,1), (1,3)..
-                gen = ["".join(gen[ix_s:ix_e]) for ix_s, ix_e in zip([0] + batch_ix, batch_ix)]
+                gen = [" ".join(gen[ix_s:ix_e]) for ix_s, ix_e in zip([0] + batch_ix, batch_ix)]
                 translated_texts.extend(gen)
                 success_count += 1
 
