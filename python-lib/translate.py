@@ -338,17 +338,17 @@ class Translator:
                 batch_tokens = self.tokenizer.pad(batch_tokens, padding=True, return_tensors="pt")
                 # Move to CPU/GPU
                 batch_tokens = {k: v.to(self.device) for k, v in batch_tokens.items()}
-                gen = self.model.generate(
+                out = self.model.generate(
                     **batch_tokens,
                     forced_bos_token_id=self.tokenizer.get_lang_id(tar_lang),
                     num_beams=num_beams,
                     **kwargs,
                 ).cpu()
                 # Decode back to strings
-                gen = self.tokenizer.batch_decode(gen, skip_special_tokens=True)
+                out = self.tokenizer.batch_decode(out, skip_special_tokens=True)
                 # Stitch back together by iterating through start & end indices, e.g. (0,1), (1,3)..
-                gen = [" ".join(gen[ix_s:ix_e]) for ix_s, ix_e in zip([0] + batch_ix, batch_ix)]
-                translated_texts.extend(gen)
+                out = [" ".join(out[ix_s:ix_e]) for ix_s, ix_e in zip([0] + batch_ix, batch_ix)]
+                translated_texts.extend(out)
                 success_count += 1
 
         logging.info(
