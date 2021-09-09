@@ -147,7 +147,7 @@ SRC_TO_PYSBD = {
 
 # Define 300 as the max length of input tokens for generation
 # 200 is the max output length for M2M as defined in its config available from the HF Model Hub
-# Empirically M2M is at its best when being inputted <300 tokens and generating <300 tokens
+# Empirically M2M is at its best when being fed <300 tokens and generating <300 tokens
 MAX_INPUT_TOKENS = 300
 
 # ==============================================================================
