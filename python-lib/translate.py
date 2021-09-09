@@ -323,17 +323,18 @@ class Translator:
                 batch_ix = []
                 for sub_batch in batch:
                     for txt in sub_batch:
+                        # Convert string to list of integers according to tokenizer's vocabulary
                         tokens = self.tokenizer.encode(txt, add_special_tokens=False)
                         # Enforce a maximum length in case of incorrect splitting or too long sentences
                         for i in range(0, len(tokens), MAX_INPUT_TOKENS):
                             input_dict = self.tokenizer.prepare_for_model(
                                 tokens[i : i + MAX_INPUT_TOKENS], add_special_tokens=True
                             )
-                            for key, value in input_dict.items():
-                                batch_tokens.setdefault(key, [])
-                                batch_tokens[key].append(value)
+                            for input_type, input_list in input_dict.items():
+                                batch_tokens.setdefault(input_type, [])
+                                batch_tokens[input_type].append(input_list)
                     # Store the new length with each new sub_batch to discern what batch each text belongs to
-                    batch_ix.append(len(batch_tokens[key]))
+                    batch_ix.append(len(batch_tokens[input_type]))
                 # No need for truncation, as all inputs are now trimmed to less than the models seq length
                 batch_tokens = self.tokenizer.pad(batch_tokens, padding=True, return_tensors="pt")
                 # Move to CPU/GPU
