@@ -1,0 +1,6 @@
+sentencepiece==0.1.96
+torch==1.9
+transformers==4.8.2
+pandas>=1.0,<1.1
+pytest==6.2.1
+allure-pytest==2.8.29

@@ -1,0 +1,19 @@
+{
+    "id": "nlp-offline-translation",
+    "version": "1.0.0",
+    "meta": {
+        "label": "Offline Translation",
+        "category": "Natural Language Processing",
+        "description": "Translate text offline across 100 languages",
+        "author": "Dataiku (Niklas MUENNIGHOFF, Mehdi HAMOUMI, Krishna VADAKATTU)",
+        "icon": "icon-dku-offline-translation",
+        "licenseInfo": "Apache Software License",
+        "supportLevel": "NOT_SUPPORTED",
+        "url": "https://www.dataiku.com/product/plugins/nlp-offline-translation/",
+        "tags": [
+            "Offline",
+            "Translation",
+            "NLP"
+        ]
+    }
+}
