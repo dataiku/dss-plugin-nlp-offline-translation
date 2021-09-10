@@ -337,7 +337,7 @@ class Translator:
                             batch_tokens["attention_mask"].append(input_dict["attention_mask"])
                         if len(tokens) > MAX_INPUT_TOKENS:
                             logging.warning(
-                                f"Sentence is too long by ({len(tokens)} > {MAX_INPUT_TOKENS}) tokens, and will be translated in pieces, which might degrade performance. Check the source language and/or consider using the 'Split Sentences' option."
+                                f"Sentence is too long ({len(tokens)} > {MAX_INPUT_TOKENS}) tokens, and will be translated in pieces, which might degrade performance. Check the source language and/or consider using the 'Split Sentences' option."
                             )
                     # Store the new length with each new sub_batch to discern what batch each text belongs to
                     batch_ix.append(len(batch_tokens["input_ids"]))
