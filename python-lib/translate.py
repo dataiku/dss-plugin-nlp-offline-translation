@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Module implementing offline translation."""
 
+from collections import defaultdict
 import logging
 from typing import List
 
@@ -319,7 +320,7 @@ class Translator:
                 else:
                     batch = [[txt] for txt in batch]
                 # Prepare the model inputs
-                batch_tokens = {}
+                batch_tokens = defaultdict(list)
                 batch_ix = []
                 for txt in batch:
                     for sentence in txt:
@@ -330,15 +331,16 @@ class Translator:
                             input_dict = self.tokenizer.prepare_for_model(
                                 tokens[i : i + MAX_INPUT_TOKENS], add_special_tokens=True
                             )
-                            for input_type, input_list in input_dict.items():
-                                batch_tokens.setdefault(input_type, [])
-                                batch_tokens[input_type].append(input_list)
+                            # input_ids: Same as tokens, but with model-specific beginning and end tokens
+                            # attention_mask: List of 1s for each input_id, i.e. the tokens it should attend to
+                            batch_tokens["input_ids"].append(input_dict["input_ids"])
+                            batch_tokens["attention_mask"].append(input_dict["attention_mask"])
                         if len(tokens) > MAX_INPUT_TOKENS:
                             logging.warning(
                                 f"Sentence is too long by ({len(tokens)} > {MAX_INPUT_TOKENS}) tokens, and will be translated in pieces, which might degrade performance. Check the source language and/or consider using the 'Split Sentences' option."
                             )
                     # Store the new length with each new sub_batch to discern what batch each text belongs to
-                    batch_ix.append(len(batch_tokens[input_type]))
+                    batch_ix.append(len(batch_tokens["input_ids"]))
                 # No need for truncation, as all inputs are now trimmed to less than the models seq length
                 batch_tokens = self.tokenizer.pad(batch_tokens, padding=True, return_tensors="pt")
                 # Move to CPU/GPU
