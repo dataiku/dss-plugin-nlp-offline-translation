@@ -333,7 +333,7 @@ class Translator:
                             for input_type, input_list in input_dict.items():
                                 batch_tokens.setdefault(input_type, [])
                                 batch_tokens[input_type].append(input_list)
-                        if i > 0:
+                        if len(tokens) > MAX_INPUT_TOKENS:
                             logging.warning(
                                 f"Sentence is too long by ({len(tokens)} > {MAX_INPUT_TOKENS}) tokens, and will be translated in pieces, which might degrade performance. Check the source language and/or consider using the 'Split Sentences' option."
                             )
