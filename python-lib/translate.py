@@ -335,7 +335,7 @@ class Translator:
                                 batch_tokens[input_type].append(input_list)
                         if i > 0:
                             logging.warning(
-                                f"A sentence exceeding the maximum length by {len(tokens) - MAX_INPUT_TOKENS} tokens was detected. Either your input contains very long sentences or a mistake in splitting occured. The sentence will be translated in pieces. This may degrade performance. Check that you have selected the correct source language or consider using the 'Split Sentences' option."
+                                f"Sentence is too long by ({len(tokens)} > {MAX_INPUT_TOKENS}) tokens, and will be translated in pieces, which might degrade performance. Check the source language and/or consider using the 'Split Sentences' option."
                             )
                     # Store the new length with each new sub_batch to discern what batch each text belongs to
                     batch_ix.append(len(batch_tokens[input_type]))
