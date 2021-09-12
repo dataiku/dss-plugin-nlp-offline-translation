@@ -862,7 +862,7 @@
     },
     {
       "name": "show_advanced",
-      "label": "Show Advanced options",
+      "label": "Show advanced options",
       "type": "BOOLEAN",
       "defaultValue": false,
       "mandatory": false
