@@ -878,7 +878,7 @@
     },
     {
       "name": "split_sentences",
-      "label": "Split Sentences",
+      "label": "Split sentences",
       "description": "Translate each row sentence by sentence (deactivate if each row is a single sentence to avoid unnecessary splitting)",
       "type": "BOOLEAN",
       "mandatory": true,
