@@ -18,6 +18,7 @@ def test_m2m():
         source_language="en",
         device="CPU",
         pretrained_model="valhalla/m2m100_tiny_random",
+        revision="337a4a691b7e14ad1668f5f4e481eaea6ce59ba1",
     )
 
     translated_df = m2m.translate_df()
