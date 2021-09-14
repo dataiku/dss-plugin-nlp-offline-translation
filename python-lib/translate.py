@@ -194,6 +194,8 @@ class Translator:
             Used instead of source_language if specified.
         device: On which device to perform translation
         pretrained_model: Specifier for a huggingface pretrained translation model
+        revision: Hugging-face Model Hub commit string corresponding to the pretrained model.
+            The latest commit can be found via e.g. HfApi().model_info("facebook/m2m100_418M")
     """
 
     def __init__(
@@ -205,6 +207,7 @@ class Translator:
         source_language_col: str = None,
         device="CPU",
         pretrained_model="facebook/m2m100_418M",
+        revision="8005563f6b5843fb6820adf16bf2f91091dc97b6",
     ) -> None:
 
         if not source_language and not source_language_col:
@@ -220,8 +223,10 @@ class Translator:
         self.target_language_label = LANGUAGE_CODE_LABELS.get(target_language, "")
 
         self.device = get_device(device)
-        self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model)
-        self.model = AutoModelForSeq2SeqLM.from_pretrained(pretrained_model).to(self.device)
+        self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model, revision=revision)
+        self.model = AutoModelForSeq2SeqLM.from_pretrained(pretrained_model, revision=revision).to(
+            self.device
+        )
 
         self.translated_text_column_name = generate_unique(
             f"{self.input_column}_{self.target_language}",

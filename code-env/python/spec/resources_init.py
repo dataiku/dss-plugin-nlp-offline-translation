@@ -13,7 +13,8 @@ from transformers import AutoTokenizer
 from transformers import AutoModelForSeq2SeqLM
 
 pretrained_model = "facebook/m2m100_418M"
+revision = "8005563f6b5843fb6820adf16bf2f91091dc97b6"
 
 # Only need to download the relevant models
-AutoTokenizer.from_pretrained(pretrained_model)
-AutoModelForSeq2SeqLM.from_pretrained(pretrained_model)
+AutoTokenizer.from_pretrained(pretrained_model, revision=revision)
+AutoModelForSeq2SeqLM.from_pretrained(pretrained_model, revision=revision)
