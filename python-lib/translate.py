@@ -146,7 +146,7 @@ SRC_TO_PYSBD_DIRECT = {
     "zh": "zh",
 }
 
-# Else map languages by their families or script to pysbd compatible languages
+# Else map languages by their family or script to pysbd compatible languages
 SRC_TO_PYSBD_INDIRECT = {
     "ast": "es",
     "az": "kk",
