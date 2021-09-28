@@ -9,8 +9,8 @@ import numpy as np
 import pandas as pd
 import pysbd
 import torch
-from transformers import AutoTokenizer
 from transformers import AutoModelForSeq2SeqLM
+from transformers import AutoTokenizer
 
 from plugin_io_utils import generate_unique
 
