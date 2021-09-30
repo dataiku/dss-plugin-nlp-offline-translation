@@ -176,15 +176,15 @@ SRC_TO_PYSBD_INDIRECT = {
     "ig": "ar",
     "ilo": "en",  # Not same family, but Latin script
     "is": "da",
-    "jv": "my",  # Not same family, but related scripts
+    "jv": "zh",  # Not same family, but related scripts
     "ka": "ru",
-    "km": "my",  # Not same family, but related scripts
+    "km": "zh",  # Not same family, but related scripts
     "kn": "hi",
     "ko": "ja",  # Not same family, but empirically good results
     "lb": "de",
     "lg": "en",  # Not same family, but Latin script
     "ln": "en",  # Not same family, but Latin-like script
-    "lo": "my",  # Not same family, but related scripts
+    "lo": "zh",  # Not same family, but related scripts
     "lt": "pl",
     "lv": "pl",
     "mg": "en",  # Not same family, but Latin script
@@ -212,7 +212,7 @@ SRC_TO_PYSBD_INDIRECT = {
     "sv": "da",
     "sw": "en",  # Not same family, but Latin script
     "ta": "hi",
-    "th": "my",  # Not same family, but related scripts
+    "th": "zh",  # Not same family, but related scripts
     "tl": "en",  # Not same family, but Latin script
     "tn": "en",  # Not same family, but Latin script
     "tr": "kk",
