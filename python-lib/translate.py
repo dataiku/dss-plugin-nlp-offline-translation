@@ -9,8 +9,8 @@ import numpy as np
 import pandas as pd
 import pysbd
 import torch
-from transformers import AutoTokenizer
 from transformers import AutoModelForSeq2SeqLM
+from transformers import AutoTokenizer
 
 from plugin_io_utils import generate_unique
 
@@ -35,7 +35,7 @@ LANGUAGE_CODE_LABELS = {
     "cy": "Welsh",
     "da": "Danish",
     "de": "German",
-    "el": "Greeek",
+    "el": "Greek",
     "en": "English",
     "es": "Spanish",
     "et": "Estonian",
@@ -119,8 +119,8 @@ LANGUAGE_CODE_LABELS = {
     "zh": "Chinese",
 }
 
-# Map languages by their families to pysbd compatible languages
-SRC_TO_PYSBD = {
+# Where available, map languages to the same pysbd language
+SRC_TO_PYSBD_DIRECT = {
     "am": "am",
     "ar": "ar",
     "bg": "bg",
@@ -145,6 +145,87 @@ SRC_TO_PYSBD = {
     "ur": "ur",
     "zh": "zh",
 }
+
+# Else map languages by their family or script to pysbd compatible languages
+SRC_TO_PYSBD_INDIRECT = {
+    "ast": "es",
+    "az": "kk",
+    "ba": "kk",
+    "be": "ru",
+    "bn": "hi",
+    "br": "fr",
+    "bs": "bg",
+    "ca": "es",
+    "ceb": "en",  # Not same family, but Latin script
+    "cz": "sk",
+    "cy": "en",
+    "et": "de",
+    "ff": "en",  # Not same family, but Latin script
+    "fi": "de",
+    "fy": "en",
+    "ga": "en",
+    "gd": "en",
+    "gl": "es",
+    "gu": "hi",
+    "ha": "ar",
+    "he": "ar",
+    "hr": "bg",
+    "ht": "fr",
+    "hu": "de",
+    "id": "nl",
+    "ig": "ar",
+    "ilo": "en",  # Not same family, but Latin script
+    "is": "da",
+    "jv": "zh",  # Not same family, but related scripts
+    "ka": "ru",
+    "km": "zh",  # Not same family, but related scripts
+    "kn": "hi",
+    "ko": "ja",  # Not same family, but empirically good results
+    "lb": "de",
+    "lg": "en",  # Not same family, but Latin script
+    "ln": "en",  # Not same family, but Latin-like script
+    "lo": "zh",  # Not same family, but related scripts
+    "lt": "pl",
+    "lv": "pl",
+    "mg": "en",  # Not same family, but Latin script
+    "mk": "bg",
+    "ml": "hi",
+    "mn": "ru",  # Not same family, but Cyrillic script
+    "ms": "en",  # Not same family, but Latin script
+    "ne": "hi",
+    "no": "da",
+    "ns": "en",  # Not same family, but Latin script
+    "oc": "fr",
+    "or": "hi",
+    "pa": "hi",
+    "ps": "fa",
+    "pt": "es",
+    "ro": "es",
+    "sd": "hi",
+    "si": "mr",
+    "sl": "sk",
+    "so": "en",  # Shares lang family with Arabic, but is mostly using Latin script
+    "sq": "pl",
+    "sr": "bg",
+    "ss": "en",  # Not same family, but Latin script
+    "su": "en",  # Not same family, but Latin script
+    "sv": "da",
+    "sw": "en",  # Not same family, but Latin script
+    "ta": "hi",
+    "th": "zh",  # Not same family, but related scripts
+    "tl": "en",  # Not same family, but Latin script
+    "tn": "en",  # Not same family, but Latin script
+    "tr": "kk",
+    "uk": "ru",
+    "uz": "kk",
+    "vi": "en",  # Not same family, but Latin script
+    "wo": "en",  # Not same family, but Latin script
+    "xh": "en",  # Not same family, but Latin script
+    "yi": "en",  # Not same family, but related scripts
+    "yo": "en",  # Not same family, but Latin script
+}
+
+SRC_TO_PYSBD = {**SRC_TO_PYSBD_DIRECT, **SRC_TO_PYSBD_INDIRECT}
 
 # Define 300 as the max length of input tokens for generation
 # 200 is the max output length for M2M as defined in its config available from the HF Model Hub
