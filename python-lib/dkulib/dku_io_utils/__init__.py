@@ -7,5 +7,4 @@
 # Author: Dataiku (Alex Combessie)
 #########################################################
 
-from .chunked_processing import count_records, process_dataset_chunks  # noqa
 from .column_descriptions import set_column_descriptions  # noqa
