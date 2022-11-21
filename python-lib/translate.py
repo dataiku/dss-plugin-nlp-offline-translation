@@ -333,13 +333,13 @@ class Translator:
         if self.source_language_col:
             output_df[self.translated_text_column_name] = self.input_df.groupby(
                 self.source_language_col
-            )[self.input_column].transform(
+            )[self.input_column].astype(str).transform(
                 lambda x: self._translate_single_language_group(x, split_sentences, batch_size)
             )
         # Single source language case
         else:
             output_df[self.translated_text_column_name] = self._translate(
-                self.input_df[self.input_column],
+                self.input_df[self.input_column].astype(str),
                 tar_lang=self.target_language,
                 src_lang=self.source_language,
                 split_sentences=split_sentences,
