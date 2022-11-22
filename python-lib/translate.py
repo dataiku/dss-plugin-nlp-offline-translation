@@ -333,13 +333,13 @@ class Translator:
         if self.source_language_col:
             output_df[self.translated_text_column_name] = self.input_df.groupby(
                 self.source_language_col
-            )[self.input_column].astype(str).transform(
+            )[self.input_column].transform(
                 lambda x: self._translate_single_language_group(x, split_sentences, batch_size)
             )
         # Single source language case
         else:
             output_df[self.translated_text_column_name] = self._translate(
-                self.input_df[self.input_column].astype(str),
+                self.input_df[self.input_column],
                 tar_lang=self.target_language,
                 src_lang=self.source_language,
                 split_sentences=split_sentences,
@@ -402,9 +402,9 @@ class Translator:
                 batch = input_series[i : i + batch_size].tolist()
                 # Turn into List[List[str]] with each str being one sentence
                 if split_sentences:
-                    batch = [seg.segment(txt) for txt in batch]
+                    batch = [seg.segment(str(txt)) for txt in batch]
                 else:
-                    batch = [[txt] for txt in batch]
+                    batch = [[str(txt)] for txt in batch]
                 # Prepare the model inputs
                 batch_tokens = defaultdict(list)
                 batch_ix = []
