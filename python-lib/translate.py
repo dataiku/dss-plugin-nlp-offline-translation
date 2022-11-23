@@ -346,7 +346,10 @@ class Translator:
                 batch_size=batch_size,
                 **kwargs,
             )
-
+        
+        if self.input_df.dtypes[self.input_column] != output_df.dtypes[self.translated_text_column_name]:
+            logging.warning(f"Unexpected text column dtype of {self.input_df.dtypes[self.input_column]}. Casted to string.")
+        
         return output_df
 
     def _translate_single_language_group(self, series: pd.Series, split_sentences, batch_size):
