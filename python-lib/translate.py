@@ -7,6 +7,7 @@ from typing import List
 
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_string_dtype
 import pysbd
 import torch
 from transformers import AutoModelForSeq2SeqLM
@@ -346,8 +347,8 @@ class Translator:
                 batch_size=batch_size,
                 **kwargs,
             )
-        
-        if self.input_df.dtypes[self.input_column] != output_df.dtypes[self.translated_text_column_name]:
+
+        if is_string_dtype(self.input_df[self.input_column]) is False:
             logging.warning(f"Unexpected text column dtype of {self.input_df.dtypes[self.input_column]}. Casted to string.")
         
         return output_df
