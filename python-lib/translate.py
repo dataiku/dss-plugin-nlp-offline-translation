@@ -7,6 +7,7 @@ from typing import List
 
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_string_dtype
 import pysbd
 import torch
 from transformers import AutoModelForSeq2SeqLM
@@ -347,6 +348,9 @@ class Translator:
                 **kwargs,
             )
 
+        if not is_string_dtype(self.input_df[self.input_column]):
+            logging.warning(f"Unexpected text column dtype of {self.input_df.dtypes[self.input_column]}. Casted to string.")
+        
         return output_df
 
     def _translate_single_language_group(self, series: pd.Series, split_sentences, batch_size):
@@ -402,9 +406,9 @@ class Translator:
                 batch = input_series[i : i + batch_size].tolist()
                 # Turn into List[List[str]] with each str being one sentence
                 if split_sentences:
-                    batch = [seg.segment(txt) for txt in batch]
+                    batch = [seg.segment(str(txt)) for txt in batch]
                 else:
-                    batch = [[txt] for txt in batch]
+                    batch = [[str(txt)] for txt in batch]
                 # Prepare the model inputs
                 batch_tokens = defaultdict(list)
                 batch_ix = []
