@@ -348,7 +348,7 @@ class Translator:
                 **kwargs,
             )
 
-        if is_string_dtype(self.input_df[self.input_column]) is False:
+        if not is_string_dtype(self.input_df[self.input_column]):
             logging.warning(f"Unexpected text column dtype of {self.input_df.dtypes[self.input_column]}. Casted to string.")
         
         return output_df
