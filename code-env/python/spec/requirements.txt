@@ -1,5 +1,6 @@
 sentencepiece==0.1.96
-torch==1.9
+torch==1.9; python_version <= '3.9'
+torch==1.13.1; python_version >= '3.10'
 transformers==4.8.2
 pysbd==0.3.4
 
