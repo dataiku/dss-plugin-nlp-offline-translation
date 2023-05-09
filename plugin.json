@@ -1,6 +1,6 @@
 {
     "id": "nlp-offline-translation",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "meta": {
         "label": "Offline Translation",
         "category": "Natural Language Processing",
