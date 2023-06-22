@@ -238,7 +238,7 @@ MAX_INPUT_TOKENS = 300
 # ==============================================================================
 
 
-def get_device(device: str = "CPU") -> torch.device:
+def get_device(device: str = "cpu") -> torch.device:
     """
     Get torch device.
 
@@ -251,7 +251,7 @@ def get_device(device: str = "CPU") -> torch.device:
     Raises:
         ValueError: If GPU was selected, but not available
     """
-    if device == "GPU":
+    if device == "gpu":
         if torch.cuda.is_available():
             torch_device = torch.device("cuda")
         else:
