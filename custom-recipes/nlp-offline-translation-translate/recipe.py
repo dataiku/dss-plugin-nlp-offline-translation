@@ -2,6 +2,9 @@
 from typing import AnyStr
 from typing import Dict
 
+import os
+os.environ['TRANSFORMERS_OFFLINE'] = "1"
+
 import dataiku
 from dataiku.customrecipe import get_recipe_config
 from dataiku.customrecipe import get_input_names_for_role
