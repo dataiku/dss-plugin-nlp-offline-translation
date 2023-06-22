@@ -158,7 +158,7 @@ SRC_TO_PYSBD_INDIRECT = {
     "bs": "bg",
     "ca": "es",
     "ceb": "en",  # Not same family, but Latin script
-    "cz": "sk",
+    "cs": "sk",
     "cy": "en",
     "et": "de",
     "ff": "en",  # Not same family, but Latin script
