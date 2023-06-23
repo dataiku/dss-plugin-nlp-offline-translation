@@ -158,7 +158,8 @@ SRC_TO_PYSBD_INDIRECT = {
     "bs": "bg",
     "ca": "es",
     "ceb": "en",  # Not same family, but Latin script
-    "cz": "sk",
+    "cs": "sk",
+    "cz": "sk",  # cz was an incorrect representation of Czech, which officially is 'cs' under ISO 639-1 - this is kept here for backwards compatibility
     "cy": "en",
     "et": "de",
     "ff": "en",  # Not same family, but Latin script
