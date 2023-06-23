@@ -16,7 +16,7 @@ def test_m2m():
         input_column="translate_me",
         target_language="zh",
         source_language="en",
-        device="CPU",
+        device="cpu",
         pretrained_model="valhalla/m2m100_tiny_random",
         revision="337a4a691b7e14ad1668f5f4e481eaea6ce59ba1",
     )
