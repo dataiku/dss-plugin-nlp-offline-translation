@@ -287,7 +287,7 @@ class Translator:
         target_language: str,
         source_language: str = None,
         source_language_col: str = None,
-        device="CPU",
+        device="cpu",
         pretrained_model="facebook/m2m100_418M",
         revision="8005563f6b5843fb6820adf16bf2f91091dc97b6",
     ) -> None:
