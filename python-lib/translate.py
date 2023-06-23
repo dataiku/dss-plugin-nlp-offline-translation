@@ -239,7 +239,7 @@ MAX_INPUT_TOKENS = 300
 # ==============================================================================
 
 
-def get_device(device: str = "CPU") -> torch.device:
+def get_device(device: str = "cpu") -> torch.device:
     """
     Get torch device.
 
@@ -252,7 +252,7 @@ def get_device(device: str = "CPU") -> torch.device:
     Raises:
         ValueError: If GPU was selected, but not available
     """
-    if device == "GPU":
+    if device == "gpu":
         if torch.cuda.is_available():
             torch_device = torch.device("cuda")
         else:
@@ -288,7 +288,7 @@ class Translator:
         target_language: str,
         source_language: str = None,
         source_language_col: str = None,
-        device="CPU",
+        device="cpu",
         pretrained_model="facebook/m2m100_418M",
         revision="8005563f6b5843fb6820adf16bf2f91091dc97b6",
     ) -> None:
