@@ -1,5 +1,11 @@
 # Changelog
 
+## [Version 1.2.0](https://github.com/dataiku/dss-plugin-nlp-offline-translation/releases/tag/v1.2.0) - Python supported versions update - 2026-01
+
+- ✨ Fix requirements for python 3.9, 3.10 and 3.11
+- ✨ Add support for python 3.12 and 3.13
+- ✨ Remove support for python 3.6, 3.7 and 3.8 
+
 ## [Version 1.1.1](https://github.com/dataiku/dss-plugin-nlp-offline-translation/releases/tag/v1.1.1) - Fix release - 2023-07
 
 - 👾 Fix Czech language encoding support
