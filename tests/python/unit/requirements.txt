@@ -1,8 +1,11 @@
-sentencepiece==0.1.96
-torch==1.9
-transformers==4.8.2
-pytest==6.2.1
-allure-pytest==2.8.29
+# pytest - version constraints by Python version
+# pytest 6.x has AST compatibility issues with Python 3.10+
+# pytest 7.x dropped Python 3.6 support
+pytest>=6.2,<7; python_version == '3.6'
+pytest>=7.0,<8; python_version == '3.7'
+pytest>=7.0; python_version >= '3.8'
+
+allure-pytest>=2.8.29
 
 # Pandas - aligned with DSS 14.2 defaults
 pandas>=1.1,<1.2; python_version == '3.6'
