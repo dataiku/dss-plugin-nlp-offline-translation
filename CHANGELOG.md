@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 1.3.0 - Enhancement release - 2026-09-09
+
+- Added supported Python version: 3.14
+- Makefile cleanup: release_info.json lines removed
+
 ## [Version 1.2.0](https://github.com/dataiku/dss-plugin-nlp-offline-translation/releases/tag/v1.2.0) - Python supported versions update - 2026-01
 
 - ✨ Fix requirements for python 3.9, 3.10 and 3.11
