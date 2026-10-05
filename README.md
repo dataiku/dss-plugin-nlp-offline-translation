@@ -4,7 +4,7 @@
 
 This Dataiku DSS plugin provides a recipe to translate among 100 languages offline. It is based on open-source components, namely the [M2M Model from Facebook AI](https://ai.facebook.com/blog/introducing-many-to-many-multilingual-machine-translation/) and the [Huggingface library](https://huggingface.co/facebook/m2m100_418M).
 
-Documentation: https://www.dataiku.com/product/plugins/nlp-offline-translation/
+Documentation: https://doc.dataiku.com/dss/latest/nlp/translation.html
 
 ## Release notes
 

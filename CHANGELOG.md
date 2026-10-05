@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.3.1 - Documentation update - 2026-10-05
+
+- Update reference documentation links
+
 ## Version 1.3.0 - Enhancement release - 2026-09-09
 
 - Added supported Python version: 3.14

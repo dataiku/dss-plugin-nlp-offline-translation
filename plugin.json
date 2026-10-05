@@ -1,6 +1,6 @@
 {
   "id": "nlp-offline-translation",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "meta": {
     "label": "Offline Translation",
     "category": "NLP",
@@ -9,7 +9,7 @@
     "icon": "icon-dku-offline-translation",
     "licenseInfo": "Apache Software License",
     "supportLevel": "NOT_SUPPORTED",
-    "url": "https://www.dataiku.com/product/plugins/nlp-offline-translation/",
+    "url": "https://doc.dataiku.com/dss/latest/nlp/translation.html",
     "tags": [
       "NLP"
     ]
